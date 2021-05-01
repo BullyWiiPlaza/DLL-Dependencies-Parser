@@ -18,9 +18,15 @@
     <ClCompile Include="PEParsing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DLLReferencesResolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ExecutionTimer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DLLReferencesResolver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
