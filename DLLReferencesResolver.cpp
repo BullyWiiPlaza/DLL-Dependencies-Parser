@@ -117,12 +117,14 @@ inline auto write_to_file(const std::string& file_contents, const std::filesyste
 void dll_references_resolver::resolve_references() const
 {
     // Set the current directory to the executable's parent directory
-    const auto parent_file_path = pe_file_path.parent_path().string();
+    const auto parent_file_path = executable_file_path.parent_path().string();
     SetCurrentDirectory(parent_file_path.c_str());
 
     // Begin the modules iteration with the executable
-    module_file_paths.insert(pe_file_path.string());
+    module_file_paths.insert(executable_file_path.string());
 
+    std::set<std::filesystem::path> missing_dlls_file_names;
+    
     const auto system_32_directory = get_system_32_directory();
 
     spdlog::info("Finding dependent DLLs recursively...");
@@ -152,6 +154,7 @@ void dll_references_resolver::resolve_references() const
             catch (std::exception& exception)
             {
                 spdlog::error(exception.what());
+                missing_dlls_file_names.insert(module_file_path);
             }
         }
 
@@ -168,12 +171,24 @@ void dll_references_resolver::resolve_references() const
     std::set<std::filesystem::path> dll_load_failures;
     for (const auto& module_file_path : module_file_paths)
     {
+        if (missing_dlls_file_names.contains(module_file_path))
+        {
+            continue;
+        }
+    	
         if (resolve_absolute_dll_file_path(module_file_path.filename()).empty())
         {
             dll_load_failures.insert(module_file_path);
         }
     }
 
+    json missing_dlls_json = json::array();
+    for (const auto& missing_dlls_file_name : missing_dlls_file_names)
+    {
+        missing_dlls_json.push_back(missing_dlls_file_name.string());
+    }
+    output_json["missing-dlls"] = missing_dlls_json;
+	
     json dll_load_failures_json = json::array();
     for (const auto& dll_load_failure : dll_load_failures)
     {
