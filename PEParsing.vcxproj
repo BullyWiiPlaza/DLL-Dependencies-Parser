@@ -148,11 +148,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DLLReferencesResolver.cpp" />
-    <ClCompile Include="PEParsing.cpp" />
+    <ClCompile Include="DLLReferencesResolverClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DLLReferencesResolver.hpp" />
     <ClInclude Include="ExecutionTimer.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
