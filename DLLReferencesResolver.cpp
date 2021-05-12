@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <spdlog/spdlog.h>
 #include <boost/algorithm/string/predicate.hpp>
+#include "CorrectCasingPathUtils.hpp"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
@@ -82,7 +83,8 @@ inline auto add_module_file_paths(const std::filesystem::path& parsed_module_fil
         if (const auto absolute_module_file_path = resolve_absolute_dll_file_path(module_name);
             !absolute_module_file_path.empty())
         {
-            updated_module_file_paths.insert(absolute_module_file_path);
+            const auto corrected_casing = correct_path_casing(absolute_module_file_path.string());
+            updated_module_file_paths.insert(corrected_casing);
         }
         else
         {
@@ -199,11 +201,11 @@ void dll_references_resolver::resolve_references() const
     json referenced_dlls_json = json::array();
     for (const auto& module_file_path : module_file_paths)
     {
-    	// Exclude EXEs etc.
-    	if (boost::iends_with(module_file_path.string(), "dll"))
-    	{
+        // Exclude EXEs etc.
+        if (boost::iends_with(module_file_path.string(), "dll"))
+        {
             referenced_dlls_json.push_back(module_file_path.string());
-    	}
+        }
     }
     output_json["referenced-dlls"] = referenced_dlls_json;
 

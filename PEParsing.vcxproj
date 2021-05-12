@@ -147,10 +147,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CorrectCasingUtils.cpp" />
     <ClCompile Include="DLLReferencesResolver.cpp" />
     <ClCompile Include="DLLReferencesResolverClient.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CorrectCasingPathUtils.hpp" />
     <ClInclude Include="DLLReferencesResolver.hpp" />
     <ClInclude Include="ExecutionTimer.hpp" />
   </ItemGroup>
