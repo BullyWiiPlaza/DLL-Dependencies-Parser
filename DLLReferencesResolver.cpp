@@ -133,7 +133,7 @@ void dll_references_resolver::resolve_references() const
     const execution_timer timer;
     while (true)
     {
-        auto copied_module_file_paths = module_file_paths;
+        std::set<std::filesystem::path> copied_module_file_paths = module_file_paths;
         const auto previous_module_file_path_count = module_file_paths.size();
         for (auto& module_file_path : copied_module_file_paths)
         {
@@ -199,13 +199,11 @@ void dll_references_resolver::resolve_references() const
     output_json["dll-load-failures"] = dll_load_failures_json;
 
     json referenced_dlls_json = json::array();
+    // Exclude the PE file again
+    module_file_paths.erase(executable_file_path);
     for (const auto& module_file_path : module_file_paths)
     {
-        // Exclude EXEs etc.
-        if (boost::iends_with(module_file_path.string(), "dll"))
-        {
-            referenced_dlls_json.push_back(module_file_path.string());
-        }
+        referenced_dlls_json.push_back(module_file_path.string());
     }
     output_json["referenced-dlls"] = referenced_dlls_json;
 
