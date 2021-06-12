@@ -13,6 +13,8 @@ class resolved_dll_dependencies
 		std::vector<std::string> referenced_dlls;
 };
 
+constexpr auto default_skip_parsing_windows_dll_dependencies = false;
+
 class dll_references_resolver
 {
 	std::filesystem::path resolve_absolute_dll_file_path(const std::filesystem::path& module_name) const;
@@ -26,7 +28,7 @@ class dll_references_resolver
 
 	    std::filesystem::path results_output_file_path;
 
-	    bool skip_parsing_windows_dll_dependencies;
+	    bool skip_parsing_windows_dll_dependencies = default_skip_parsing_windows_dll_dependencies;
 
 		resolved_dll_dependencies resolve_references();
 };
