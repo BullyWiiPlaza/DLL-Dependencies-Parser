@@ -22,9 +22,9 @@ BOOST_AUTO_TEST_CASE(test_utf8_file_path)
     references_resolver.executable_file_path = test_files_directory / "Français\\VC_redist.x64.exe";
     references_resolver.executable_file_path = absolute(references_resolver.executable_file_path);
     const auto [dll_load_failures, missing_dlls, referenced_dlls] = references_resolver.resolve_references();
-    BOOST_CHECK(dll_load_failures.empty());
-    BOOST_CHECK(missing_dlls.empty());
-    BOOST_CHECK(referenced_dlls.size() == 8);
+    BOOST_REQUIRE(dll_load_failures.empty());
+    BOOST_REQUIRE(missing_dlls.empty());
+    BOOST_REQUIRE(referenced_dlls.size() == 8);
 }
 
 BOOST_AUTO_TEST_CASE(test_bot_utilities_parsing)
@@ -33,15 +33,26 @@ BOOST_AUTO_TEST_CASE(test_bot_utilities_parsing)
     references_resolver.executable_file_path = test_files_directory / "Bot-Utilities.exe";
     references_resolver.executable_file_path = absolute(references_resolver.executable_file_path);
     auto [dll_load_failures, missing_dlls, referenced_dlls] = references_resolver.resolve_references();
-    BOOST_CHECK(dll_load_failures.size() == 1);
-    BOOST_CHECK(missing_dlls.size() == 9);
-    BOOST_CHECK(referenced_dlls.size() == 35);
+    BOOST_REQUIRE(dll_load_failures.size() == 1);
+    BOOST_REQUIRE(missing_dlls.size() == 11);
+    BOOST_REQUIRE(referenced_dlls.size() == 30);
+}
 
-    references_resolver.skip_parsing_system32_dll_dependencies = false;
+BOOST_AUTO_TEST_CASE(test_parsing_with_system_libraries)
+{
+    dll_references_resolver references_resolver;
+    references_resolver.executable_file_path = test_files_directory / "Bot-Utilities.exe";
+    references_resolver.executable_file_path = absolute(references_resolver.executable_file_path);
+    references_resolver.skip_parsing_windows_dll_dependencies = false;
+    const auto [dll_load_failures, missing_dlls, referenced_dlls] = references_resolver.resolve_references();
+    BOOST_REQUIRE(dll_load_failures.size() == 1);
+    BOOST_REQUIRE(missing_dlls.size() == 11);
+    BOOST_REQUIRE(referenced_dlls.size() == 42);
+
     const auto [dll_load_failures_2, missing_dlls_2, referenced_dlls_2] = references_resolver.resolve_references();
-    BOOST_CHECK(dll_load_failures_2.size() == 10);
-    BOOST_CHECK(missing_dlls_2.empty());
-    BOOST_CHECK(referenced_dlls_2.size() == 44);
+    BOOST_REQUIRE(dll_load_failures_2.size() == 1);
+    BOOST_REQUIRE(missing_dlls_2.size() == 11);
+    BOOST_REQUIRE(referenced_dlls_2.size() == 42);
 }
 
 BOOST_AUTO_TEST_CASE(test_jduel_links_bot_hooks_parsing)
@@ -50,9 +61,9 @@ BOOST_AUTO_TEST_CASE(test_jduel_links_bot_hooks_parsing)
     references_resolver.executable_file_path = test_files_directory / "JDuelLinksBotHooks.dll";
     references_resolver.executable_file_path = absolute(references_resolver.executable_file_path);
     const auto [dll_load_failures, missing_dlls, referenced_dlls] = references_resolver.resolve_references();
-    BOOST_CHECK(dll_load_failures.empty());
-    BOOST_CHECK(missing_dlls.empty());
-    BOOST_CHECK(referenced_dlls.size() == 3);
+    BOOST_REQUIRE(dll_load_failures.empty());
+    BOOST_REQUIRE(missing_dlls.empty());
+    BOOST_REQUIRE(referenced_dlls.size() == 3);
 }
 
 #else
@@ -73,21 +84,21 @@ int main(const int argument_count, char* arguments[])
         application.add_option("--pe-file-path", executable_file_path, "The file path to the executable to analyze")
         ->required()
     	->check(CLI::ExistingFile);
-        auto skip_parsing_system32_dll_dependencies = false;
-        application.add_flag("--skip-parsing-system32-dll-dependencies", skip_parsing_system32_dll_dependencies, "Whether system32 DLLs will not be parsed to speed up analysis");
+        auto skip_parsing_windows_dll_dependencies = false;
+        application.add_flag("--skip-parsing-windows-dll-dependencies", skip_parsing_windows_dll_dependencies, "Whether Windows DLLs will not be parsed to speed up analysis");
         std::filesystem::path results_output_file_path;
         application.add_option("--results-output-file-path", results_output_file_path, "The output file to write the results to");
     	
         CLI11_PARSE(application, argument_count, arguments)
 
         spdlog::info("Executable file path: " + executable_file_path.string());
-        spdlog::info("Skip parsing system32 DLL dependencies: " + bool_to_string(skip_parsing_system32_dll_dependencies));
+        spdlog::info("Skip parsing Windows DLL dependencies: " + bool_to_string(skip_parsing_windows_dll_dependencies));
         results_output_file_path = absolute(results_output_file_path);
         spdlog::info("Results output file path: " + results_output_file_path.string());
     	
         dll_references_resolver references_resolver;
         references_resolver.executable_file_path = executable_file_path;
-        references_resolver.skip_parsing_system32_dll_dependencies = skip_parsing_system32_dll_dependencies;
+        references_resolver.skip_parsing_windows_dll_dependencies = skip_parsing_windows_dll_dependencies;
         references_resolver.results_output_file_path = results_output_file_path;
         references_resolver.resolve_references();
 

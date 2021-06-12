@@ -40,9 +40,15 @@ inline auto dump_module_names(void* output_buffer, const peparse::VA& virtual_ad
     return 0;
 }
 
-inline std::filesystem::path resolve_absolute_dll_file_path(const std::filesystem::path& module_name)
+inline std::filesystem::path get_windows_directory()
 {
-    const execution_timer timer;
+    char file_path[MAX_PATH];
+    GetWindowsDirectory(file_path, MAX_PATH);
+    return file_path;
+}
+
+std::filesystem::path dll_references_resolver::resolve_absolute_dll_file_path(const std::filesystem::path& module_name) const
+{
     if (const auto module_handle = LoadLibrary(module_name.string().c_str());
         module_handle != nullptr)
     {
@@ -55,6 +61,14 @@ inline std::filesystem::path resolve_absolute_dll_file_path(const std::filesyste
         {
             std::cerr << "FreeLibrary() failed on " << module_name << "..." << std::endl;
         } */
+
+        if (const auto windows_directory = get_windows_directory(); 
+            !boost::istarts_with(module_file_path, windows_directory.string())
+            && !boost::istarts_with(module_file_path, executable_file_path.parent_path().string()))
+    	{
+            return "";
+    	}
+    	
         return module_file_path;
     }
 
@@ -63,7 +77,7 @@ inline std::filesystem::path resolve_absolute_dll_file_path(const std::filesyste
 
 std::set<std::filesystem::path> parsed_module_file_paths;
 
-inline auto add_module_file_paths(const std::filesystem::path& parsed_module_file_path)
+void dll_references_resolver::add_module_file_paths(const std::filesystem::path& parsed_module_file_path) const
 {
     parsed_module_file_paths.insert(parsed_module_file_path);
 
@@ -100,13 +114,6 @@ inline auto add_module_file_paths(const std::filesystem::path& parsed_module_fil
     spdlog::debug(timer_log_message);
 }
 
-inline std::filesystem::path get_system_32_directory()
-{
-    TCHAR file_path[MAX_PATH];
-    GetSystemDirectoryA(file_path, MAX_PATH);
-    return file_path;
-}
-
 inline auto write_to_file(const std::string& file_contents, const std::filesystem::path& file_path)
 {
     std::ofstream file_writer(file_path, std::ios::binary);
@@ -139,6 +146,9 @@ inline auto string_to_utf8(const std::string& string)
 
 resolved_dll_dependencies dll_references_resolver::resolve_references() const
 {
+    parsed_module_file_paths.clear();
+    module_file_paths.clear();
+	
     // Set the current directory to the executable's parent directory
     const auto parent_file_path = executable_file_path.parent_path().string();
     SetCurrentDirectory(parent_file_path.c_str());
@@ -148,7 +158,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references() const
 
     std::set<std::filesystem::path> missing_dlls_file_names;
     
-    const auto system_32_directory = get_system_32_directory();
+    const auto windows_directory = get_windows_directory();
 
     spdlog::info("Finding dependent DLLs recursively...");
     const execution_timer timer;
@@ -158,9 +168,10 @@ resolved_dll_dependencies dll_references_resolver::resolve_references() const
         const auto previous_module_file_path_count = module_file_paths.size();
         for (auto& module_file_path : copied_module_file_paths)
         {
-            if (skip_parsing_system32_dll_dependencies && boost::istarts_with(module_file_path.string(), system_32_directory.string()))
+            if (skip_parsing_windows_dll_dependencies
+                && boost::istarts_with(module_file_path.string(), windows_directory.string()))
             {
-                spdlog::debug("Skipping to parse system32 directory module...");
+                spdlog::debug("Skipping to parse Windows directory module " + module_file_path.string() + "...");
                 continue;
             }
 
