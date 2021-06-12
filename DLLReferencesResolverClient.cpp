@@ -19,7 +19,7 @@ std::filesystem::path test_files_directory = "Test Files";
 BOOST_AUTO_TEST_CASE(test_utf8_file_path)
 {
     dll_references_resolver references_resolver;
-    references_resolver.executable_file_path = test_files_directory / "Français\\VC_redist.x64.exe";
+    references_resolver.executable_file_path = test_files_directory / "Français" / "VC_redist.x64.exe";
     references_resolver.executable_file_path = absolute(references_resolver.executable_file_path);
     const auto [dll_load_failures, missing_dlls, referenced_dlls] = references_resolver.resolve_references();
     BOOST_REQUIRE(dll_load_failures.empty());

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <set>
 
 class resolved_dll_dependencies
 {
@@ -16,7 +17,9 @@ class dll_references_resolver
 {
 	std::filesystem::path resolve_absolute_dll_file_path(const std::filesystem::path& module_name) const;
 
-	void add_module_file_paths(const std::filesystem::path& parsed_module_file_path) const;
+	void add_module_file_paths(const std::filesystem::path& parsed_module_file_path);
+
+	std::set<std::filesystem::path> parsed_module_file_paths_;
 
 	public:
 	    std::filesystem::path executable_file_path;
@@ -25,5 +28,5 @@ class dll_references_resolver
 
 	    bool skip_parsing_windows_dll_dependencies;
 
-		resolved_dll_dependencies resolve_references() const;
+		resolved_dll_dependencies resolve_references();
 };

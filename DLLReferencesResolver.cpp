@@ -75,11 +75,9 @@ std::filesystem::path dll_references_resolver::resolve_absolute_dll_file_path(co
     return "";
 }
 
-std::set<std::filesystem::path> parsed_module_file_paths;
-
-void dll_references_resolver::add_module_file_paths(const std::filesystem::path& parsed_module_file_path) const
+void dll_references_resolver::add_module_file_paths(const std::filesystem::path& parsed_module_file_path)
 {
-    parsed_module_file_paths.insert(parsed_module_file_path);
+    parsed_module_file_paths_.insert(parsed_module_file_path);
 
     const execution_timer timer;
     spdlog::debug("Parsing PE file " + parsed_module_file_path.string() + "...");
@@ -129,24 +127,24 @@ inline auto write_to_file(const std::string& file_contents, const std::filesyste
 inline auto string_to_utf8(const std::string& string)
 {
     const auto size = MultiByteToWideChar(CP_ACP, MB_COMPOSITE, string.c_str(),
-        string.length(), nullptr, 0);
-    std::wstring utf16_str(size, '\0');
+        static_cast<int>(string.length()), nullptr, 0);
+    std::wstring utf16_string(size, '\0');
     MultiByteToWideChar(CP_ACP, MB_COMPOSITE, string.c_str(),
-        string.length(), &utf16_str[0], size);
+        static_cast<int>(string.length()), &utf16_string.at(0), size);
 
-    const auto utf8_size = WideCharToMultiByte(CP_UTF8, 0, utf16_str.c_str(),
-        utf16_str.length(), nullptr, 0,
+    const auto utf8_size = WideCharToMultiByte(CP_UTF8, 0, utf16_string.c_str(),
+        static_cast<int>(utf16_string.length()), nullptr, 0,
         nullptr, nullptr);
-    std::string utf8_str(utf8_size, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, utf16_str.c_str(),
-        utf16_str.length(), &utf8_str[0], utf8_size,
+    std::string utf8_string(utf8_size, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, utf16_string.c_str(),
+        static_cast<int>(utf8_string.length()), &utf8_string.at(0), utf8_size,
         nullptr, nullptr);
-    return utf8_str;
+    return utf8_string;
 }
 
-resolved_dll_dependencies dll_references_resolver::resolve_references() const
+resolved_dll_dependencies dll_references_resolver::resolve_references()
 {
-    parsed_module_file_paths.clear();
+    parsed_module_file_paths_.clear();
     module_file_paths.clear();
 	
     // Set the current directory to the executable's parent directory
@@ -175,7 +173,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references() const
                 continue;
             }
 
-            if (parsed_module_file_paths.contains(module_file_path))
+            if (parsed_module_file_paths_.contains(module_file_path))
             {
                 spdlog::debug("Module " + module_file_path.string() + " already parsed, skipping...");
                 continue;
