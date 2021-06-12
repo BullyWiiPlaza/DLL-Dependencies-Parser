@@ -155,6 +155,7 @@
     <ClInclude Include="CorrectCasingPathUtils.hpp" />
     <ClInclude Include="DLLReferencesResolver.hpp" />
     <ClInclude Include="ExecutionTimer.hpp" />
+    <ClInclude Include="UserProfileEnvironmentUtils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

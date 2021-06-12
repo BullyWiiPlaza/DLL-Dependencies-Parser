@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+#include "UserProfileEnvironmentUtils.hpp"
 #include "ExecutionTimer.hpp"
 
 using parsed_pe_ref = std::unique_ptr<peparse::parsed_pe, void (*)(peparse::parsed_pe*)>;
@@ -116,7 +117,27 @@ inline auto write_to_file(const std::string& file_contents, const std::filesyste
     file_writer << file_contents;
 }
 
-void dll_references_resolver::resolve_references() const
+// https://stackoverflow.com/a/21575607/3764804
+// Required due to "[json.exception.type_error.316] invalid UTF-8 byte at index"
+inline auto string_to_utf8(const std::string& string)
+{
+    const auto size = MultiByteToWideChar(CP_ACP, MB_COMPOSITE, string.c_str(),
+        string.length(), nullptr, 0);
+    std::wstring utf16_str(size, '\0');
+    MultiByteToWideChar(CP_ACP, MB_COMPOSITE, string.c_str(),
+        string.length(), &utf16_str[0], size);
+
+    const auto utf8_size = WideCharToMultiByte(CP_UTF8, 0, utf16_str.c_str(),
+        utf16_str.length(), nullptr, 0,
+        nullptr, nullptr);
+    std::string utf8_str(utf8_size, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, utf16_str.c_str(),
+        utf16_str.length(), &utf8_str[0], utf8_size,
+        nullptr, nullptr);
+    return utf8_str;
+}
+
+resolved_dll_dependencies dll_references_resolver::resolve_references() const
 {
     // Set the current directory to the executable's parent directory
     const auto parent_file_path = executable_file_path.parent_path().string();
@@ -178,32 +199,42 @@ void dll_references_resolver::resolve_references() const
             continue;
         }
     	
-        if (resolve_absolute_dll_file_path(module_file_path.filename()).empty())
+        if (resolve_absolute_dll_file_path(module_file_path.filename()).empty()
+            && !boost::iends_with(module_file_path.string(), ".exe"))
         {
             dll_load_failures.insert(module_file_path);
         }
     }
 
     json missing_dlls_json = json::array();
+    std::vector<std::string> missing_dlls_vector;
     for (const auto& missing_dlls_file_name : missing_dlls_file_names)
     {
-        missing_dlls_json.push_back(missing_dlls_file_name.string());
+        const auto missing_dll_file_path = string_to_utf8(replace_user_profile_with_environment_variable(missing_dlls_file_name).string());
+        missing_dlls_json.push_back(missing_dll_file_path);
+        missing_dlls_vector.push_back(missing_dll_file_path);
     }
     output_json["missing-dlls"] = missing_dlls_json;
 	
     json dll_load_failures_json = json::array();
+    std::vector<std::string> dll_load_failures_vector;
     for (const auto& dll_load_failure : dll_load_failures)
     {
-        dll_load_failures_json.push_back(dll_load_failure.string());
+        const auto dll_load_failure_file_path = string_to_utf8(replace_user_profile_with_environment_variable(dll_load_failure).string());
+        dll_load_failures_json.push_back(dll_load_failure_file_path);
+        dll_load_failures_vector.push_back(dll_load_failure_file_path);
     }
     output_json["dll-load-failures"] = dll_load_failures_json;
 
     json referenced_dlls_json = json::array();
+    std::vector<std::string> referenced_dlls_vector;
     // Exclude the PE file again
     module_file_paths.erase(executable_file_path);
     for (const auto& module_file_path : module_file_paths)
     {
-        referenced_dlls_json.push_back(module_file_path.string());
+        const auto module_file_path_utf8 = string_to_utf8(replace_user_profile_with_environment_variable(module_file_path).string());
+        referenced_dlls_json.push_back(module_file_path_utf8);
+        referenced_dlls_vector.push_back(module_file_path_utf8);
     }
     output_json["referenced-dlls"] = referenced_dlls_json;
 
@@ -215,7 +246,9 @@ void dll_references_resolver::resolve_references() const
         spdlog::info("Writing result JSON to " + results_output_file_path.string() + "...");
         write_to_file(printed_output_json, results_output_file_path);
     }
-
+    
     const auto message = timer.build_log_message("DLL references resolver");
     spdlog::info(message);
+    
+    return {dll_load_failures_vector, missing_dlls_vector, referenced_dlls_vector};
 }

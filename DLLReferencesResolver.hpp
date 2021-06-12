@@ -2,6 +2,16 @@
 
 #include <filesystem>
 
+class resolved_dll_dependencies
+{
+	public:
+		std::vector<std::string> dll_load_failures;
+
+		std::vector<std::string> missing_dlls;
+		
+		std::vector<std::string> referenced_dlls;
+};
+
 class dll_references_resolver
 {
 	public:
@@ -11,5 +21,5 @@ class dll_references_resolver
 
 	    bool skip_parsing_system32_dll_dependencies;
 
-	    void resolve_references() const;
+		resolved_dll_dependencies resolve_references() const;
 };
