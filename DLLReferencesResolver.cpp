@@ -42,8 +42,12 @@ inline auto dump_module_names(void* output_buffer, const peparse::VA& virtual_ad
 
 inline std::filesystem::path get_windows_directory()
 {
-    char file_path[MAX_PATH];
-    GetWindowsDirectory(file_path, MAX_PATH);
+    char file_path[MAX_PATH]{};
+    if (const auto length_copied = GetWindowsDirectory(file_path, MAX_PATH);
+        length_copied == 0)
+	{
+        throw std::runtime_error("GetWindowsDirectory() failed");
+	}
     return file_path;
 }
 

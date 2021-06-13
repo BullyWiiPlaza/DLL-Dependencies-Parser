@@ -158,6 +158,8 @@
     <ClInclude Include="UserProfileEnvironmentUtils.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="LICENSE" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

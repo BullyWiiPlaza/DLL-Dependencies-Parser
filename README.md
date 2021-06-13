@@ -42,8 +42,8 @@ Options:
   -h,--help                   Print this help message and exit
   --pe-file-path TEXT:FILE REQUIRED
                               The file path to the executable to analyze
-  --skip-parsing-system32-dll-dependencies
-                              Whether system32 DLLs will not be parsed to speed up analysis
+  --skip-parsing-windows-dll-dependencies
+                              Whether Windows DLLs will not be parsed to speed up analysis
   --results-output-file-path TEXT
                               The output file to write the results to
 ```
@@ -51,7 +51,7 @@ Options:
 ### Example:
 
 ```batch
->DLL-Dependencies-Parser.exe --pe-file-path D:\My-Application.exe --results-output-file-path D:\Results.json --skip-parsing-system32-dll-dependencies
+>DLL-Dependencies-Parser.exe --pe-file-path D:\My-Application.exe --results-output-file-path D:\Results.json --skip-parsing-windows-dll-dependencies
 ```
 
 Now the `DLL` loading report of `D:\My-Application.exe` is written to the `D:\Results.json` file and can be examined manually or programmatically.
