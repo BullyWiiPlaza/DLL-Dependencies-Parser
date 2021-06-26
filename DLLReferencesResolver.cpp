@@ -126,26 +126,6 @@ inline auto write_to_file(const std::string& file_contents, const std::filesyste
     file_writer << file_contents;
 }
 
-// https://stackoverflow.com/a/21575607/3764804
-// Required due to "[json.exception.type_error.316] invalid UTF-8 byte at index"
-inline auto string_to_utf8(const std::string& string)
-{
-    const auto size = MultiByteToWideChar(CP_ACP, MB_COMPOSITE, string.c_str(),
-        static_cast<int>(string.length()), nullptr, 0);
-    std::wstring utf16_string(size, '\0');
-    MultiByteToWideChar(CP_ACP, MB_COMPOSITE, string.c_str(),
-        static_cast<int>(string.length()), &utf16_string.at(0), size);
-
-    const auto utf8_size = WideCharToMultiByte(CP_UTF8, 0, utf16_string.c_str(),
-        static_cast<int>(utf16_string.length()), nullptr, 0,
-        nullptr, nullptr);
-    std::string utf8_string(utf8_size, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, utf16_string.c_str(),
-        static_cast<int>(utf8_string.length()), &utf8_string.at(0), utf8_size,
-        nullptr, nullptr);
-    return utf8_string;
-}
-
 resolved_dll_dependencies dll_references_resolver::resolve_references()
 {
     parsed_module_file_paths_.clear();
@@ -228,7 +208,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
     std::vector<std::string> missing_dlls_vector;
     for (const auto& missing_dlls_file_name : missing_dlls_file_names)
     {
-        const auto missing_dll_file_path = string_to_utf8(replace_user_profile_with_environment_variable(missing_dlls_file_name).string());
+        const auto missing_dll_file_path = replace_user_profile_with_environment_variable(missing_dlls_file_name).string();
         missing_dlls_json.push_back(missing_dll_file_path);
         missing_dlls_vector.push_back(missing_dll_file_path);
     }
@@ -238,7 +218,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
     std::vector<std::string> dll_load_failures_vector;
     for (const auto& dll_load_failure : dll_load_failures)
     {
-        const auto dll_load_failure_file_path = string_to_utf8(replace_user_profile_with_environment_variable(dll_load_failure).string());
+        const auto dll_load_failure_file_path = replace_user_profile_with_environment_variable(dll_load_failure).string();
         dll_load_failures_json.push_back(dll_load_failure_file_path);
         dll_load_failures_vector.push_back(dll_load_failure_file_path);
     }
@@ -250,7 +230,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
     module_file_paths.erase(executable_file_path);
     for (const auto& module_file_path : module_file_paths)
     {
-        const auto module_file_path_utf8 = string_to_utf8(replace_user_profile_with_environment_variable(module_file_path).string());
+        const auto module_file_path_utf8 = replace_user_profile_with_environment_variable(module_file_path).string();
         referenced_dlls_json.push_back(module_file_path_utf8);
         referenced_dlls_vector.push_back(module_file_path_utf8);
     }

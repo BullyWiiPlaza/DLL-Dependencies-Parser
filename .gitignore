@@ -340,4 +340,4 @@ ASALocalRun/
 healthchecksdb
 *.json
 
-/Test Files
+/DLL-Dependencies-Parser-Tests/Test Files
