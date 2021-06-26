@@ -43,17 +43,17 @@ inline auto dump_module_names(void* output_buffer, const peparse::VA& virtual_ad
 inline std::filesystem::path get_windows_directory()
 {
     char file_path[MAX_PATH]{};
-    if (const auto length_copied = GetWindowsDirectory(file_path, MAX_PATH);
+    if (const auto length_copied = GetWindowsDirectoryA(file_path, MAX_PATH);
         length_copied == 0)
-	{
+    {
         throw std::runtime_error("GetWindowsDirectory() failed");
-	}
+    }
     return file_path;
 }
 
 std::filesystem::path dll_references_resolver::resolve_absolute_dll_file_path(const std::filesystem::path& module_name) const
 {
-    if (const auto module_handle = LoadLibrary(module_name.string().c_str());
+    if (const auto module_handle = LoadLibraryA(module_name.string().c_str());
         module_handle != nullptr)
     {
         char module_file_path[MAX_PATH];
@@ -66,13 +66,13 @@ std::filesystem::path dll_references_resolver::resolve_absolute_dll_file_path(co
             std::cerr << "FreeLibrary() failed on " << module_name << "..." << std::endl;
         } */
 
-        if (const auto windows_directory = get_windows_directory(); 
+        if (const auto windows_directory = get_windows_directory();
             !boost::istarts_with(module_file_path, windows_directory.string())
             && !boost::istarts_with(module_file_path, executable_file_path.parent_path().string()))
-    	{
+        {
             return "";
-    	}
-    	
+        }
+
         return module_file_path;
     }
 
@@ -150,16 +150,21 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
 {
     parsed_module_file_paths_.clear();
     module_file_paths.clear();
-	
+
+    if (!is_regular_file(executable_file_path))
+    {
+        throw std::runtime_error("Input file \"" + executable_file_path.string() + "\" does not exist");
+    }
+
     // Set the current directory to the executable's parent directory
     const auto parent_file_path = executable_file_path.parent_path().string();
-    SetCurrentDirectory(parent_file_path.c_str());
+    SetCurrentDirectoryA(parent_file_path.c_str());
 
     // Begin the modules iteration with the executable
     module_file_paths.insert(executable_file_path.string());
 
     std::set<std::filesystem::path> missing_dlls_file_names;
-    
+
     const auto windows_directory = get_windows_directory();
 
     spdlog::info("Finding dependent DLLs recursively...");
@@ -201,7 +206,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
             break;
         }
     }
-    
+
     json output_json;
 
     std::set<std::filesystem::path> dll_load_failures;
@@ -211,7 +216,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
         {
             continue;
         }
-    	
+
         if (resolve_absolute_dll_file_path(module_file_path.filename()).empty()
             && !boost::iends_with(module_file_path.string(), ".exe"))
         {
@@ -228,7 +233,7 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
         missing_dlls_vector.push_back(missing_dll_file_path);
     }
     output_json["missing-dlls"] = missing_dlls_json;
-	
+
     json dll_load_failures_json = json::array();
     std::vector<std::string> dll_load_failures_vector;
     for (const auto& dll_load_failure : dll_load_failures)
@@ -259,9 +264,9 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
         spdlog::info("Writing result JSON to " + results_output_file_path.string() + "...");
         write_to_file(printed_output_json, results_output_file_path);
     }
-    
+
     const auto message = timer.build_log_message("DLL references resolver");
     spdlog::info(message);
-    
-    return {dll_load_failures_vector, missing_dlls_vector, referenced_dlls_vector};
+
+    return { dll_load_failures_vector, missing_dlls_vector, referenced_dlls_vector };
 }

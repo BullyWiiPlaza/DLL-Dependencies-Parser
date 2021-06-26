@@ -73,6 +73,8 @@ BOOST_AUTO_TEST_CASE(test_jduel_links_bot_hooks_parsing)
 
 #else
 
+// TODO Boost Tests in a new project?
+// TODO https://docs.microsoft.com/en-us/cpp/build/reference/utf-8-set-source-and-executable-character-sets-to-utf-8?view=msvc-160 ?
 int main(const int argument_count, char* arguments[])
 {	
     try

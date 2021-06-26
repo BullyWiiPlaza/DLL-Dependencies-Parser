@@ -13,6 +13,12 @@ inline std::string get_environment_variable(const std::string& environment_varia
     {
         throw std::runtime_error("_dupenv_s() failed: " + std::to_string(errno_value));
     }
+
+    if (buffer == nullptr)
+    {
+        throw std::runtime_error("buffer was nullptr");
+    }
+
     std::string environment_variable = buffer;
     free(buffer);
     return environment_variable;
@@ -34,7 +40,7 @@ inline auto replace_all(std::string& input, const std::string& from, const std::
     }
 }
 
-inline auto replace_user_profile_with_environment_variable(const std::filesystem::path &file_path)
+inline auto replace_user_profile_with_environment_variable(const std::filesystem::path& file_path)
 {
     // Replace the user profile part in the file path with the environment variable if applicable
     const auto user_profile_environment_variable = "USERPROFILE";
@@ -44,7 +50,7 @@ inline auto replace_user_profile_with_environment_variable(const std::filesystem
         spdlog::info("Replacing user file path with environment variable...");
         auto executable_file_path_string = file_path.string();
         replace_all(executable_file_path_string, user_home_profile, std::string("%") + user_profile_environment_variable + "%");
-        const std::filesystem::path updated_file_path = executable_file_path_string;
+        std::filesystem::path updated_file_path = executable_file_path_string;
         spdlog::info("Updated file path: " + updated_file_path.string());
         return updated_file_path;
     }
