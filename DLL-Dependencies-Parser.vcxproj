@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{ebde9607-4d9a-488f-bca9-b34e815e8a22}</ProjectGuid>
-    <RootNamespace>PEParsing</RootNamespace>
+    <RootNamespace>DLL-Dependencies-Parser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>DLL-Dependencies-Parser</ProjectName>
   </PropertyGroup>

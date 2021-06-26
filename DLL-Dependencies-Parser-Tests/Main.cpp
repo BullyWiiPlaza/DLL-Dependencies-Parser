@@ -6,6 +6,21 @@
 
 std::filesystem::path test_files_directory = "Test Files";
 
+BOOST_AUTO_TEST_CASE(test_non_existing_file_path)
+{
+    try
+    {
+        dll_references_resolver references_resolver;
+        references_resolver.executable_file_path = test_files_directory / "non-existing.exe";
+        references_resolver.resolve_references();
+        BOOST_REQUIRE(false);
+    }
+	catch(std::exception &)
+	{
+        BOOST_REQUIRE(true);
+	}
+}
+
 BOOST_AUTO_TEST_CASE(test_utf8_file_path)
 {
     dll_references_resolver references_resolver;
