@@ -15,7 +15,7 @@ int main(const int argument_count, char* arguments[])
         spdlog::set_level(spdlog::level::level_enum::debug);
 #endif
     	
-        spdlog::info("Referenced DLL Parser (C) 2021 BullyWiiPlaza Productions");
+        spdlog::info("Referenced DLL Parser v1.2 (C) 2021 BullyWiiPlaza Productions");
     	
         CLI::App application{"Referenced DLL Parser"};
 

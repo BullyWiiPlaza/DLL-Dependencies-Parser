@@ -230,9 +230,14 @@ resolved_dll_dependencies dll_references_resolver::resolve_references()
     module_file_paths.erase(executable_file_path);
     for (const auto& module_file_path : module_file_paths)
     {
-        const auto module_file_path_utf8 = replace_user_profile_with_environment_variable(module_file_path).string();
-        referenced_dlls_json.push_back(module_file_path_utf8);
-        referenced_dlls_vector.push_back(module_file_path_utf8);
+    	if (boost::iends_with(module_file_path.string(), ".exe"))
+    	{
+            continue;
+    	}
+    	
+        const auto modified_module_file_path = replace_user_profile_with_environment_variable(module_file_path).string();
+        referenced_dlls_json.push_back(modified_module_file_path);
+        referenced_dlls_vector.push_back(modified_module_file_path);
     }
     output_json["referenced-dlls"] = referenced_dlls_json;
 
