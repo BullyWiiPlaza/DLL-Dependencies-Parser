@@ -1,6 +1,6 @@
 #include "DLLReferencesResolver.hpp"
 
-#include <parser-library/parse.h>
+#include <pe-parse/parse.h>
 #include <CLI/CLI.hpp>
 #include <Windows.h>
 #include <spdlog/spdlog.h>
