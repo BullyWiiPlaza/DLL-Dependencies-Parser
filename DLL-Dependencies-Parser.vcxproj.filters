@@ -18,10 +18,16 @@
     <ClCompile Include="DLLReferencesResolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CorrectCasingUtils.cpp">
+    <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="CorrectCasingPathUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UserProfileEnvironmentUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExecutionTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

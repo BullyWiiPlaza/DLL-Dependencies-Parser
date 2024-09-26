@@ -147,9 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CorrectCasingUtils.cpp" />
+    <ClCompile Include="CorrectCasingPathUtils.cpp" />
     <ClCompile Include="DLLReferencesResolver.cpp" />
+    <ClCompile Include="ExecutionTimer.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="UserProfileEnvironmentUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CorrectCasingPathUtils.hpp" />

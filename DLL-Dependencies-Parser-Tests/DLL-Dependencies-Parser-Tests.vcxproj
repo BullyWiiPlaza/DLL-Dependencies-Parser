@@ -143,6 +143,8 @@
   <ItemGroup>
     <ClCompile Include="..\CorrectCasingUtils.cpp" />
     <ClCompile Include="..\DLLReferencesResolver.cpp" />
+    <ClCompile Include="..\ExecutionTimer.cpp" />
+    <ClCompile Include="..\UserProfileEnvironmentUtils.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
