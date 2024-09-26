@@ -1,6 +1,6 @@
 #include "DLLReferencesResolver.hpp"
 
-#include <parser-library/parse.h>
+#include <pe-parse/parse.h>
 #include <CLI/CLI.hpp>
 #include <Windows.h>
 #include <spdlog/spdlog.h>
@@ -27,8 +27,9 @@ inline auto open_executable(const std::filesystem::path& path)
 
 std::set<std::filesystem::path> module_file_paths;
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 inline auto dump_module_names(void* output_buffer, const peparse::VA& virtual_address,
-    const std::string& module_name, const std::string& symbol_name)
+                              const std::string& module_name, const std::string& symbol_name)
 {
     (void)output_buffer;
     (void)virtual_address;

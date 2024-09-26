@@ -1,6 +1,6 @@
 #include <filesystem>
 #include <stdexcept>
-#include <spdlog/details/backtracer.h>
+#include <Windows.h>
 
 #include "CorrectCasingPathUtils.hpp"
 

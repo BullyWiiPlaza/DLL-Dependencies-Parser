@@ -56,6 +56,10 @@ Options:
 
 Now the `DLL` loading report of `D:\My-Application.exe` is written to the `D:\Results.json` file and can be examined manually or programmatically.
 
+### Potential Errors
+
+`Failed parsing PE file`: This error means that the input file wasn't a valid PE file. This error is returned by the `pe-parse` library.
+
 ## Compiling
 
 This project is a `Visual Studio` solution and therefore the `*.sln` file has to be loaded in `Visual Studio`. You also need a `C++20` compatible `MSVC` compiler. Furthermore, this application depends on various libraries which need to be available on the system via a package manager like [`vcpkg`](https://github.com/microsoft/vcpkg) by running the `vcpkg install [package-name]` command:
@@ -67,6 +71,10 @@ This project is a `Visual Studio` solution and therefore the `*.sln` file has to
 * [`Boost`](https://www.boost.org)
 
 Furthermore, don't forget to `vcpkg integrate install` with `Visual Studio`.
+
+### Tests
+
+The binaries required to run the tests successfully are currently **not** provided.
 
 ## Credits
 
