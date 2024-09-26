@@ -7,8 +7,9 @@ inline std::string bool_to_string(const bool value)
     return value ? "true" : "false";
 }
 
-int main(const int argument_count, char* arguments[])
-{	
+// ReSharper disable once IdentifierTypo
+int wmain(const int argument_count, wchar_t* arguments[])
+{
     try
     {
 #if _DEBUG
