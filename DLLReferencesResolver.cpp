@@ -39,7 +39,7 @@ bool load_file_to_buffer(const std::filesystem::path& file_path, std::vector<uin
 
     // Seek to the beginning and read the file into the buffer
     file.seekg(0, std::ios::beg);
-    file.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
+    file.read(reinterpret_cast<char*>(buffer.data()), static_cast<long long>(buffer.size()));
 
     // Check if the read operation was successful
     if (!file)
