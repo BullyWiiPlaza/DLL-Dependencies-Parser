@@ -17,7 +17,7 @@ int wmain(const int argument_count, wchar_t* arguments[])
         spdlog::set_level(spdlog::level::level_enum::debug);
 #endif
 
-        spdlog::info("Referenced DLL Parser v1.3 (C) 2021 - 2024 BullyWiiPlaza Productions");
+        spdlog::info("Referenced DLL Parser v1.3.2 (C) 2021 - 2024 BullyWiiPlaza Productions");
 
         spdlog::debug("### Passed arguments ###");
         for (auto argument_index = 0; argument_index < argument_count; argument_index++)
